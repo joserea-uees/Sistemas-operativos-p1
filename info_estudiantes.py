@@ -6,7 +6,3 @@ def nombres_estudiantes():
         print(nombre)
     
     return estudiantes
-
-
-
-nombres_estudiantes()
