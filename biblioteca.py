@@ -1,5 +1,6 @@
 import threading
 import time
+import random
 from datetime import datetime
 
 
@@ -28,13 +29,39 @@ class Biblioteca:
         self.inventario = {}           # Recurso compartido: dict[str, int]
         self.historial = []            # Recurso compartido: list[dict]
         self.lock = threading.Lock()   # Mutex para proteger secciones críticas
+        self.contadorUsuarios = 0      # Para IDs automáticos de nuevos usuarios
 
     def agregarLibro(self, libro: Libro):
         self.inventario[libro.titulo] = libro.copiasDisponibles
+        print(f"Libro agregado: {libro.titulo} ({libro.copiasDisponibles} copias)")
+
+    def registrarBitacora(self, evento: str, usuario_nombre: str, titulo: str, copiasAntes=None, copiasDespues=None):
+        """Registra eventos solo dentro de secciones críticas (con lock)"""
+        ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]  # con milisegundos
+        linea = f"{ts} | {evento:14} | {usuario_nombre:15} | {titulo:35}"
+        if copiasAntes is not None:
+            linea += f" | antes: {copiasAntes:2}"
+        if copiasDespues is not None:
+            linea += f" | después: {copiasDespues:2}"
+        linea += "\n"
+
+        with open("bitacora.log", "a", encoding="utf-8") as f:
+            f.write(linea)
 
     def prestarLibro(self, usuario: Usuario, titulo: str):
         with self.lock:
-            if titulo in self.inventario and self.inventario[titulo] > 0:
+            self.registrarBitacora("ADQUIERE_LOCK", usuario.nombre, titulo)
+
+            if titulo not in self.inventario:
+                print(f"✗ '{titulo}' no existe en la biblioteca.")
+                self.registrarBitacora("PRÉSTAMO_FALLIDO_NO_EXISTE", usuario.nombre, titulo)
+                self.registrarBitacora("LIBERA_LOCK", usuario.nombre, titulo)
+                return
+
+            copiasAntes = self.inventario[titulo]
+            self.registrarBitacora("COPIAS_ANTES", usuario.nombre, titulo, copiasAntes=copiasAntes)
+
+            if copiasAntes > 0:
                 self.inventario[titulo] -= 1
                 usuario.librosPrestados.append(titulo)
                 self.historial.append({
@@ -43,9 +70,13 @@ class Biblioteca:
                     "accion": "préstamo",
                     "fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 })
-                print(f"{usuario.nombre} tomó prestado '{titulo}'. Copias restantes: {self.inventario[titulo]}")
+                print(f"✓ {usuario.nombre} tomó prestado '{titulo}'. Copias restantes: {self.inventario[titulo]}")
+                self.registrarBitacora("PRÉSTAMO_OK", usuario.nombre, titulo, copiasAntes, self.inventario[titulo])
             else:
-                print(f"{usuario.nombre} no pudo prestar '{titulo}': No disponible")
+                print(f"✗ {usuario.nombre} no pudo prestar '{titulo}': sin copias disponibles.")
+                self.registrarBitacora("PRÉSTAMO_FALLIDO_SIN_COPIAS", usuario.nombre, titulo, copiasAntes)
+
+            self.registrarBitacora("LIBERA_LOCK", usuario.nombre, titulo)
 
     def devolverLibro(self, usuario: Usuario, titulo: str):
         with self.lock:
