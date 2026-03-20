@@ -80,18 +80,29 @@ class Biblioteca:
 
     def devolverLibro(self, usuario: Usuario, titulo: str):
         with self.lock:
-            if titulo in usuario.librosPrestados:
-                self.inventario[titulo] += 1
-                usuario.librosPrestados.remove(titulo)
-                self.historial.append({
-                    "usuario": usuario.nombre,
-                    "libro": titulo,
-                    "accion": "devolución",
-                    "fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                })
-                print(f"{usuario.nombre} devolvió '{titulo}'. Copias ahora: {self.inventario[titulo]}")
-            else:
-                print(f"{usuario.nombre} no tiene '{titulo}' para devolver")
+            self.registrarBitacora("ADQUIERE_LOCK", usuario.nombre, titulo)
+
+            if titulo not in usuario.librosPrestados:
+                print(f"✗ {usuario.nombre} no tiene '{titulo}' prestado.")
+                self.registrarBitacora("DEVOLUCIÓN_FALLIDA_NO_PRESTADO", usuario.nombre, titulo)
+                self.registrarBitacora("LIBERA_LOCK", usuario.nombre, titulo)
+                return
+
+            copiasAntes = self.inventario.get(titulo, 0)
+            self.registrarBitacora("COPIAS_ANTES", usuario.nombre, titulo, copiasAntes=copiasAntes)
+
+            self.inventario[titulo] = copiasAntes + 1
+            usuario.librosPrestados.remove(titulo)
+            self.historial.append({
+                "usuario": usuario.nombre,
+                "libro": titulo,
+                "accion": "devolución",
+                "fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            })
+            print(f"↩ {usuario.nombre} devolvió '{titulo}'. Copias ahora: {self.inventario[titulo]}")
+            self.registrarBitacora("DEVOLUCIÓN_OK", usuario.nombre, titulo, copiasAntes, self.inventario[titulo])
+
+            self.registrarBitacora("LIBERA_LOCK", usuario.nombre, titulo)
 
     def mostrarHistorial(self):
         if not self.historial:
@@ -99,10 +110,52 @@ class Biblioteca:
             return
         
         print("Historial de movimientos:")
-        print("-" * 60)
+        print("-" * 80)
         for entrada in self.historial:
-            print(f"{entrada['fecha']} | {entrada['usuario']:12} | {entrada['accion']:10} | {entrada['libro']}")
+            print(f"{entrada['fecha']} | {entrada['usuario']:18} | {entrada['accion']:10} | {entrada['libro']}")
+        print("-" * 80)
+
+    def mostrarInventario(self):
+        if not self.inventario:
+            print("No hay libros en el inventario.")
+            return
+        print("\nInventario actual:")
         print("-" * 60)
+        for titulo, copias in sorted(self.inventario.items()):
+            print(f"{titulo:40} : {copias:2} copias disponibles")
+        print("-" * 60)
+
+
+def simularConcurrencia(biblioteca, usuarios):
+    print("\n=== Simulación concurrente iniciada ===\n")
+
+    def acciones_usuario(u, secuencia):
+        for accion, titulo in secuencia:
+            if accion == "prestamo":
+                u.solicitarPrestamo(biblioteca, titulo)
+            else:
+                u.devolverLibro(biblioteca, titulo)
+            time.sleep(random.uniform(0.2, 0.7))  # variabilidad para mejor concurrencia
+
+    hilos = []
+    secuencias = [
+        (usuarios[0], [("prestamo", "El Quijote Digital"), ("prestamo", "Cien Años de Soledad Digital"), ("devolucion", "El Quijote Digital")]),
+        (usuarios[1], [("prestamo", "El Quijote Digital"), ("prestamo", "1984 Digital")]),
+        (usuarios[2], [("prestamo", "Rayuela Digital")]),
+        (usuarios[3], [("prestamo", "El Quijote Digital"), ("devolucion", "El Quijote Digital")])
+    ]
+
+    for u, seq in secuencias:
+        if seq:  # solo si hay acciones
+            h = threading.Thread(target=acciones_usuario, args=(u, seq))
+            hilos.append(h)
+
+    for h in hilos:
+        h.start()
+    for h in hilos:
+        h.join()
+
+    print("\n=== Simulación concurrente finalizada ===\n")
 
 
 def main():
@@ -120,73 +173,95 @@ def main():
     
     for libro in libros:
         biblioteca.agregarLibro(libro)
-        print(f"Libro agregado: {libro.titulo} ({libro.copiasDisponibles} copias)")
     
-    print("\nUsuarios registrados:")
+    print("\nUsuarios registrados inicialmente:")
     usuarios = [
         Usuario("José Rea", 1),
         Usuario("Cristhian Guaman", 2),
         Usuario("Enma Castelo", 3),
         Usuario("Allan Avendaño", 4)
     ]
+    biblioteca.contadorUsuarios = 4
     
     for u in usuarios:
-        print(f"(ID: {u.idUsuario}) {u.nombre} ")
+        print(f"(ID: {u.idUsuario}) {u.nombre}")
     
-    print("\nSimulación concurrente\n")
     
-    # Acciones para cada usuario
-    acciones = {
-        "José Rea": [
-            {"tipo": "prestamo", "titulo": "El Quijote Digital"},
-            {"tipo": "prestamo", "titulo": "Cien Años de Soledad Digital"},
-            {"tipo": "devolucion", "titulo": "El Quijote Digital"}
-        ],
-        "Cristhian Guaman": [
-            {"tipo": "prestamo", "titulo": "El Quijote Digital"},
-            {"tipo": "prestamo", "titulo": "1984 Digital"}
-        ],
-        "Enma Castelo": [
-            {"tipo": "prestamo", "titulo": "Rayuela Digital"}
-        ],
-        "Allan Avendaño": [
-            {"tipo": "devolucion", "titulo": "El Quijote Digital"}  # Intento de devolución sin haberlo prestado
-        ]
-    }
-    
-    # Hilos
-    hilos = []
-    for usuario in usuarios:
-        nombre = usuario.nombre
-        if nombre in acciones and acciones[nombre]:
-            hilo = threading.Thread(
-                target=lambda u=usuario, acc=acciones[nombre]: 
-                    [u.solicitarPrestamo(biblioteca, a["titulo"]) if a["tipo"] == "prestamo" else 
-                     u.devolverLibro(biblioteca, a["titulo"]) or time.sleep(0.4) 
-                     for a in acc]
-            )
-            hilos.append(hilo)
-    
-    # Iniciar todos los hilos
-    for hilo in hilos:
-        hilo.start()
-    
-    # Esperar a que terminen
-    for hilo in hilos:
-        hilo.join()
-    
-    # Resultados finales
-    print("\n" + "="*70)
-    print("                      SIMULACIÓN FINALIZADA")
-    print("="*70)
-    
-    biblioteca.mostrarHistorial()
-    
-    print("\nInventario final:")
-    print("-" * 50)
-    for titulo, copias in biblioteca.inventario.items():
-        print(f"{titulo:35} : {copias:2} copias disponibles")
-    print("-" * 50)
+    while True:
+        print("\n" + "="*60)
+        print("         MENÚ PRINCIPAL - BIBLIOTECA DIGITAL")
+        print("="*60)
+        print("1. Simulación automática")
+        print("2. Prestar libro ")
+        print("3. Devolver libro ")
+        print("4. Ver historial de movimientos")
+        print("5. Ver inventario actual")
+        print("6. Crear nuevo usuario")
+        print("7. Limpiar bitácora.log")
+        print("0. Salir")
+        print("="*60)
+        
+        opcion = input("").strip()
+        
+        if opcion == "0":
+            print("\n¡Gracias por usar el sistema!")
+            break
+        
+        elif opcion == "1":
+            simularConcurrencia(biblioteca, usuarios)
+        
+        elif opcion in ["2", "3"]:
+            print("\nUsuarios disponibles:")
+            for i, u in enumerate(usuarios, 1):
+                print(f"  {i}. {u.nombre} (ID {u.idUsuario})")
+            try:
+                idx = int(input("Número de usuario → ")) - 1
+                if idx < 0 or idx >= len(usuarios):
+                    raise ValueError
+                usuario = usuarios[idx]
+            except:
+                print("Selección inválida.")
+                continue
+            
+            titulo = input("Título del libro → ").strip()
+            if not titulo:
+                print("Título requerido.")
+                continue
+            
+            if opcion == "2":
+                usuario.solicitarPrestamo(biblioteca, titulo)
+            else:
+                usuario.devolverLibro(biblioteca, titulo)
+        
+        elif opcion == "4":
+            biblioteca.mostrarHistorial()
+        
+        elif opcion == "5":
+            biblioteca.mostrarInventario()
+        
+        elif opcion == "6":
+            nombre = input("Nombre del nuevo usuario → ").strip()
+            if not nombre:
+                print("Nombre requerido.")
+                continue
+            biblioteca.contadorUsuarios += 1
+            nuevo = Usuario(nombre, biblioteca.contadorUsuarios)
+            usuarios.append(nuevo)
+            print(f"Usuario creado: {nuevo.nombre} (ID {nuevo.idUsuario})")
+        
+        elif opcion == "7":
+            confirmar = input("¿Realmente quieres borrar bitacora.log? (s/n): ").lower()
+            if confirmar == 's':
+                try:
+                    open("bitacora.log", "w", encoding="utf-8").close()
+                    print("Bitácora limpiada exitosamente.")
+                except Exception as e:
+                    print(f"No se pudo limpiar: {e}")
+            else:
+                print("Operación cancelada.")
+        
+        else:
+            print("Opción no válida.")
 
 if __name__ == "__main__":
     main()
