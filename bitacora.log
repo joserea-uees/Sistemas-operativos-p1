@@ -1,0 +1,24 @@
+2026-03-24 23:28:42.039 | ADQUIERE_LOCK  | José Rea        | El Quijote Digital                 
+2026-03-24 23:28:42.039 | PRESTAMO_OK    | José Rea        | El Quijote Digital                  | antes:  3 | después:  2
+2026-03-24 23:28:42.039 | LIBERA_LOCK    | José Rea        | El Quijote Digital                 
+2026-03-24 23:28:42.039 | ADQUIERE_LOCK  | Cristhian Guaman | El Quijote Digital                 
+2026-03-24 23:28:42.040 | PRESTAMO_OK    | Cristhian Guaman | El Quijote Digital                  | antes:  2 | después:  1
+2026-03-24 23:28:42.040 | LIBERA_LOCK    | Cristhian Guaman | El Quijote Digital                 
+2026-03-24 23:28:42.041 | ADQUIERE_LOCK  | Enma Castelo    | Rayuela Digital                    
+2026-03-24 23:28:42.041 | PRESTAMO_OK    | Enma Castelo    | Rayuela Digital                     | antes:  4 | después:  3
+2026-03-24 23:28:42.041 | LIBERA_LOCK    | Enma Castelo    | Rayuela Digital                    
+2026-03-24 23:28:42.041 | ADQUIERE_LOCK  | Allan Avendaño  | El Quijote Digital                 
+2026-03-24 23:28:42.042 | PRESTAMO_OK    | Allan Avendaño  | El Quijote Digital                  | antes:  1 | después:  0
+2026-03-24 23:28:42.042 | LIBERA_LOCK    | Allan Avendaño  | El Quijote Digital                 
+2026-03-24 23:28:42.473 | ADQUIERE_LOCK  | Cristhian Guaman | 1984 Digital                       
+2026-03-24 23:28:42.473 | PRESTAMO_OK    | Cristhian Guaman | 1984 Digital                        | antes:  1 | después:  0
+2026-03-24 23:28:42.473 | LIBERA_LOCK    | Cristhian Guaman | 1984 Digital                       
+2026-03-24 23:28:42.672 | ADQUIERE_LOCK  | José Rea        | Cien Años de Soledad Digital       
+2026-03-24 23:28:42.672 | PRESTAMO_OK    | José Rea        | Cien Años de Soledad Digital        | antes:  2 | después:  1
+2026-03-24 23:28:42.672 | LIBERA_LOCK    | José Rea        | Cien Años de Soledad Digital       
+2026-03-24 23:28:42.702 | ADQUIERE_LOCK  | Allan Avendaño  | El Quijote Digital                 
+2026-03-24 23:28:42.702 | DEVOLUCION_OK  | Allan Avendaño  | El Quijote Digital                  | antes:  0 | después:  1
+2026-03-24 23:28:42.702 | LIBERA_LOCK    | Allan Avendaño  | El Quijote Digital                 
+2026-03-24 23:28:43.256 | ADQUIERE_LOCK  | José Rea        | El Quijote Digital                 
+2026-03-24 23:28:43.256 | DEVOLUCION_OK  | José Rea        | El Quijote Digital                  | antes:  1 | después:  2
+2026-03-24 23:28:43.256 | LIBERA_LOCK    | José Rea        | El Quijote Digital                 
