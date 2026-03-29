@@ -1,24 +1,48 @@
-2026-03-24 23:28:42.039 | ADQUIERE_LOCK  | José Rea        | El Quijote Digital                 
-2026-03-24 23:28:42.039 | PRESTAMO_OK    | José Rea        | El Quijote Digital                  | antes:  3 | después:  2
-2026-03-24 23:28:42.039 | LIBERA_LOCK    | José Rea        | El Quijote Digital                 
-2026-03-24 23:28:42.039 | ADQUIERE_LOCK  | Cristhian Guaman | El Quijote Digital                 
-2026-03-24 23:28:42.040 | PRESTAMO_OK    | Cristhian Guaman | El Quijote Digital                  | antes:  2 | después:  1
-2026-03-24 23:28:42.040 | LIBERA_LOCK    | Cristhian Guaman | El Quijote Digital                 
-2026-03-24 23:28:42.041 | ADQUIERE_LOCK  | Enma Castelo    | Rayuela Digital                    
-2026-03-24 23:28:42.041 | PRESTAMO_OK    | Enma Castelo    | Rayuela Digital                     | antes:  4 | después:  3
-2026-03-24 23:28:42.041 | LIBERA_LOCK    | Enma Castelo    | Rayuela Digital                    
-2026-03-24 23:28:42.041 | ADQUIERE_LOCK  | Allan Avendaño  | El Quijote Digital                 
-2026-03-24 23:28:42.042 | PRESTAMO_OK    | Allan Avendaño  | El Quijote Digital                  | antes:  1 | después:  0
-2026-03-24 23:28:42.042 | LIBERA_LOCK    | Allan Avendaño  | El Quijote Digital                 
-2026-03-24 23:28:42.473 | ADQUIERE_LOCK  | Cristhian Guaman | 1984 Digital                       
-2026-03-24 23:28:42.473 | PRESTAMO_OK    | Cristhian Guaman | 1984 Digital                        | antes:  1 | después:  0
-2026-03-24 23:28:42.473 | LIBERA_LOCK    | Cristhian Guaman | 1984 Digital                       
-2026-03-24 23:28:42.672 | ADQUIERE_LOCK  | José Rea        | Cien Años de Soledad Digital       
-2026-03-24 23:28:42.672 | PRESTAMO_OK    | José Rea        | Cien Años de Soledad Digital        | antes:  2 | después:  1
-2026-03-24 23:28:42.672 | LIBERA_LOCK    | José Rea        | Cien Años de Soledad Digital       
-2026-03-24 23:28:42.702 | ADQUIERE_LOCK  | Allan Avendaño  | El Quijote Digital                 
-2026-03-24 23:28:42.702 | DEVOLUCION_OK  | Allan Avendaño  | El Quijote Digital                  | antes:  0 | después:  1
-2026-03-24 23:28:42.702 | LIBERA_LOCK    | Allan Avendaño  | El Quijote Digital                 
-2026-03-24 23:28:43.256 | ADQUIERE_LOCK  | José Rea        | El Quijote Digital                 
-2026-03-24 23:28:43.256 | DEVOLUCION_OK  | José Rea        | El Quijote Digital                  | antes:  1 | después:  2
-2026-03-24 23:28:43.256 | LIBERA_LOCK    | José Rea        | El Quijote Digital                 
+2026-03-29 22:02:47.581 / ADQUIERE_LOCK / José Rea / El Quijote Digital
+2026-03-29 22:02:47.582 / PRESTAMO_OK / José Rea / El Quijote Digital / antes:3 / despues:2
+2026-03-29 22:02:47.582 / LIBERA_LOCK / José Rea / El Quijote Digital
+2026-03-29 22:02:47.583 / ADQUIERE_LOCK / Cristhian Guaman / Cien Años de Soledad Digital
+2026-03-29 22:02:47.583 / PRESTAMO_OK / Cristhian Guaman / Cien Años de Soledad Digital / antes:2 / despues:1
+2026-03-29 22:02:47.583 / LIBERA_LOCK / Cristhian Guaman / Cien Años de Soledad Digital
+2026-03-29 22:02:47.583 / ADQUIERE_LOCK / Enma Castelo / 1984 Digital
+2026-03-29 22:02:47.584 / PRESTAMO_OK / Enma Castelo / 1984 Digital / antes:1 / despues:0
+2026-03-29 22:02:47.584 / LIBERA_LOCK / Enma Castelo / 1984 Digital
+2026-03-29 22:02:48.414 / ADQUIERE_LOCK / José Rea / El Quijote Digital
+2026-03-29 22:02:48.414 / DEVOLUCION_OK / José Rea / El Quijote Digital / antes:2 / despues:3
+2026-03-29 22:02:48.414 / LIBERA_LOCK / José Rea / El Quijote Digital
+2026-03-29 22:02:48.415 / ADQUIERE_LOCK / Allan Avendaño / Rayuela Digital
+2026-03-29 22:02:48.415 / PRESTAMO_OK / Allan Avendaño / Rayuela Digital / antes:4 / despues:3
+2026-03-29 22:02:48.415 / LIBERA_LOCK / Allan Avendaño / Rayuela Digital
+2026-03-29 22:02:48.776 / ADQUIERE_LOCK / Cristhian Guaman / Cien Años de Soledad Digital
+2026-03-29 22:02:48.776 / DEVOLUCION_OK / Cristhian Guaman / Cien Años de Soledad Digital / antes:1 / despues:2
+2026-03-29 22:02:48.776 / LIBERA_LOCK / Cristhian Guaman / Cien Años de Soledad Digital
+2026-03-29 22:02:48.776 / ADQUIERE_LOCK / Max Rivas / El Quijote Digital
+2026-03-29 22:02:48.776 / PRESTAMO_OK / Max Rivas / El Quijote Digital / antes:3 / despues:2
+2026-03-29 22:02:48.777 / LIBERA_LOCK / Max Rivas / El Quijote Digital
+2026-03-29 22:02:48.866 / ADQUIERE_LOCK / Enma Castelo / 1984 Digital
+2026-03-29 22:02:48.866 / DEVOLUCION_OK / Enma Castelo / 1984 Digital / antes:0 / despues:1
+2026-03-29 22:02:48.866 / LIBERA_LOCK / Enma Castelo / 1984 Digital
+2026-03-29 22:02:48.871 / ADQUIERE_LOCK / Diana Briones / Cien Años de Soledad Digital
+2026-03-29 22:02:48.874 / PRESTAMO_OK / Diana Briones / Cien Años de Soledad Digital / antes:2 / despues:1
+2026-03-29 22:02:48.877 / LIBERA_LOCK / Diana Briones / Cien Años de Soledad Digital
+2026-03-29 22:02:49.181 / ADQUIERE_LOCK / Allan Avendaño / Rayuela Digital
+2026-03-29 22:02:49.181 / DEVOLUCION_OK / Allan Avendaño / Rayuela Digital / antes:3 / despues:4
+2026-03-29 22:02:49.181 / LIBERA_LOCK / Allan Avendaño / Rayuela Digital
+2026-03-29 22:02:49.182 / ADQUIERE_LOCK / Danae Granizo / 1984 Digital
+2026-03-29 22:02:49.182 / PRESTAMO_OK / Danae Granizo / 1984 Digital / antes:1 / despues:0
+2026-03-29 22:02:49.182 / LIBERA_LOCK / Danae Granizo / 1984 Digital
+2026-03-29 22:02:49.569 / ADQUIERE_LOCK / Diana Briones / Cien Años de Soledad Digital
+2026-03-29 22:02:49.570 / DEVOLUCION_OK / Diana Briones / Cien Años de Soledad Digital / antes:1 / despues:2
+2026-03-29 22:02:49.570 / LIBERA_LOCK / Diana Briones / Cien Años de Soledad Digital
+2026-03-29 22:02:49.570 / ADQUIERE_LOCK / Juan Pérez / Rayuela Digital
+2026-03-29 22:02:49.570 / PRESTAMO_OK / Juan Pérez / Rayuela Digital / antes:4 / despues:3
+2026-03-29 22:02:49.570 / LIBERA_LOCK / Juan Pérez / Rayuela Digital
+2026-03-29 22:02:50.046 / ADQUIERE_LOCK / Max Rivas / El Quijote Digital
+2026-03-29 22:02:50.046 / DEVOLUCION_OK / Max Rivas / El Quijote Digital / antes:2 / despues:3
+2026-03-29 22:02:50.046 / LIBERA_LOCK / Max Rivas / El Quijote Digital
+2026-03-29 22:02:50.558 / ADQUIERE_LOCK / Danae Granizo / 1984 Digital
+2026-03-29 22:02:50.558 / DEVOLUCION_OK / Danae Granizo / 1984 Digital / antes:0 / despues:1
+2026-03-29 22:02:50.558 / LIBERA_LOCK / Danae Granizo / 1984 Digital
+2026-03-29 22:02:51.012 / ADQUIERE_LOCK / Juan Pérez / Rayuela Digital
+2026-03-29 22:02:51.012 / DEVOLUCION_OK / Juan Pérez / Rayuela Digital / antes:3 / despues:4
+2026-03-29 22:02:51.012 / LIBERA_LOCK / Juan Pérez / Rayuela Digital

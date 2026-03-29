@@ -3,27 +3,19 @@ import time
 import random
 
 def simularConcurrencia(biblioteca, usuarios):
-    print("\n=== Simulación concurrente iniciada ===\n")
+    print("\nSIMULACION INICIADA\n")
 
-    def acciones_usuario(u, secuencia):
-        for accion, titulo in secuencia:
-            if accion == "prestamo":
-                u.solicitarPrestamo(biblioteca, titulo)
-            else:
-                u.devolverLibro(biblioteca, titulo)
-            time.sleep(random.uniform(0.2, 0.7))
+    def acciones(u, libro):
+        u.solicitarPrestamo(biblioteca, libro)
+        time.sleep(random.uniform(0.5, 1.5))
+        u.devolverLibro(biblioteca, libro)
+
+    libros = list(biblioteca.inventario.keys())
 
     hilos = []
-
-    secuencias = [
-        (usuarios[0], [("prestamo", "El Quijote Digital"), ("prestamo", "Cien Años de Soledad Digital"), ("devolucion", "El Quijote Digital")]),
-        (usuarios[1], [("prestamo", "El Quijote Digital"), ("prestamo", "1984 Digital")]),
-        (usuarios[2], [("prestamo", "Rayuela Digital")]),
-        (usuarios[3], [("prestamo", "El Quijote Digital"), ("devolucion", "El Quijote Digital")])
-    ]
-
-    for u, seq in secuencias:
-        h = threading.Thread(target=acciones_usuario, args=(u, seq))
+    for i, u in enumerate(usuarios):
+        libro = libros[i % len(libros)]
+        h = threading.Thread(target=acciones, args=(u, libro))
         hilos.append(h)
 
     for h in hilos:
@@ -31,4 +23,4 @@ def simularConcurrencia(biblioteca, usuarios):
     for h in hilos:
         h.join()
 
-    print("\n=== Simulación concurrente finalizada ===\n")
+    print("\nSIMULACION FINALIZADA\n")

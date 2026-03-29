@@ -4,24 +4,24 @@ from datetime import datetime
 
 class Biblioteca:
     def __init__(self):
-        self.inventario = {}           # dict[str, int] → recurso compartido
-        self.historial = []            # list[dict] → recurso compartido
-        self.lock = threading.Lock()   # mutex
-        self.contadorUsuarios = 0
+        self.inventario = {}
+        self.historial = []
+        self.lock = threading.Lock()
+        self.semaforo = threading.Semaphore(3)  #MAX 3 USUARIOS
 
     def agregarLibro(self, libro):
         self.inventario[libro.titulo] = libro.copiasDisponibles
-        print(f"Libro agregado: {libro.titulo} ({libro.copiasDisponibles} copias)")
+        print(f"Libro agregado / {libro.titulo} / {libro.copiasDisponibles} copias")
 
-    def registrarBitacora(self, evento, usuario_nombre, titulo, copiasAntes=None, copiasDespues=None):
+    def registrarBitacora(self, evento, usuario_nombre, titulo, antes=None, despues=None):
         ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
 
-        linea = f"{ts} | {evento:14} | {usuario_nombre:15} | {titulo:35}"
+        linea = f"{ts} / {evento} / {usuario_nombre} / {titulo}"
 
-        if copiasAntes is not None:
-            linea += f" | antes: {copiasAntes:2}"
-        if copiasDespues is not None:
-            linea += f" | después: {copiasDespues:2}"
+        if antes is not None:
+            linea += f" / antes:{antes}"
+        if despues is not None:
+            linea += f" / despues:{despues}"
 
         linea += "\n"
 
@@ -29,70 +29,73 @@ class Biblioteca:
             f.write(linea)
 
     def prestarLibro(self, usuario, titulo):
-        with self.lock:
-            self.registrarBitacora("ADQUIERE_LOCK", usuario.nombre, titulo)
 
-            if titulo not in self.inventario:
-                print(f"✗ '{titulo}' no existe.")
-                self.registrarBitacora("NO_EXISTE", usuario.nombre, titulo)
+        print(f"{usuario.nombre} intenta entrar a leer / {titulo}")
+
+        self.semaforo.acquire()
+        print(f"{usuario.nombre} ENTRA a la biblioteca")
+
+        try:
+            with self.lock:
+                self.registrarBitacora("ADQUIERE_LOCK", usuario.nombre, titulo)
+
+                if usuario.librosPrestados:
+                    print(f"✗ {usuario.nombre} ya tiene un libro")
+                    self.registrarBitacora("YA_TIENE_LIBRO", usuario.nombre, titulo)
+                    return
+
+                if titulo not in self.inventario:
+                    print(f"✗ Libro no existe / {titulo}")
+                    self.registrarBitacora("NO_EXISTE", usuario.nombre, titulo)
+                    return
+
+                antes = self.inventario[titulo]
+
+                if antes > 0:
+                    self.inventario[titulo] -= 1
+                    usuario.librosPrestados.append(titulo)
+
+                    print(f"✓ {usuario.nombre} tomó / {titulo}")
+
+                    self.registrarBitacora("PRESTAMO_OK", usuario.nombre, titulo, antes, self.inventario[titulo])
+                else:
+                    print(f"✗ Sin copias / {titulo}")
+                    self.registrarBitacora("SIN_COPIAS", usuario.nombre, titulo, antes)
+
                 self.registrarBitacora("LIBERA_LOCK", usuario.nombre, titulo)
-                return
 
-            copiasAntes = self.inventario[titulo]
+        except Exception as e:
+            print(f"Error: {e}")
 
-            if copiasAntes > 0:
-                self.inventario[titulo] -= 1
-                usuario.librosPrestados.append(titulo)
-
-                self.historial.append({
-                    "usuario": usuario.nombre,
-                    "libro": titulo,
-                    "accion": "préstamo",
-                    "fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                })
-
-                print(f"✓ {usuario.nombre} tomó '{titulo}'")
-                self.registrarBitacora("PRESTAMO_OK", usuario.nombre, titulo, copiasAntes, self.inventario[titulo])
-
-            else:
-                print(f"✗ Sin copias de '{titulo}'")
-                self.registrarBitacora("SIN_COPIAS", usuario.nombre, titulo, copiasAntes)
-
-            self.registrarBitacora("LIBERA_LOCK", usuario.nombre, titulo)
-
+            # SI FALLA, LIBERA
+            self.semaforo.release()
+            return
     def devolverLibro(self, usuario, titulo):
+
         with self.lock:
             self.registrarBitacora("ADQUIERE_LOCK", usuario.nombre, titulo)
 
             if titulo not in usuario.librosPrestados:
-                print(f"✗ {usuario.nombre} no tiene '{titulo}'")
+                print(f"✗ {usuario.nombre} no tiene / {titulo}")
                 self.registrarBitacora("NO_PRESTADO", usuario.nombre, titulo)
                 self.registrarBitacora("LIBERA_LOCK", usuario.nombre, titulo)
                 return
 
-            copiasAntes = self.inventario.get(titulo, 0)
+            antes = self.inventario.get(titulo, 0)
 
-            self.inventario[titulo] = copiasAntes + 1
+            self.inventario[titulo] += 1
             usuario.librosPrestados.remove(titulo)
 
-            self.historial.append({
-                "usuario": usuario.nombre,
-                "libro": titulo,
-                "accion": "devolución",
-                "fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            })
+            print(f"↩ {usuario.nombre} devolvió / {titulo}")
 
-            print(f"↩ {usuario.nombre} devolvió '{titulo}'")
-            self.registrarBitacora("DEVOLUCION_OK", usuario.nombre, titulo, copiasAntes, self.inventario[titulo])
+            self.registrarBitacora("DEVOLUCION_OK", usuario.nombre, titulo, antes, self.inventario[titulo])
 
             self.registrarBitacora("LIBERA_LOCK", usuario.nombre, titulo)
 
-    def mostrarHistorial(self):
-        print("\n=== HISTORIAL ===")
-        for h in self.historial:
-            print(f"{h['fecha']} | {h['usuario']} | {h['accion']} | {h['libro']}")
-
+        # LIBERA CUPO
+        print(f"{usuario.nombre} SALE de la biblioteca")
+        self.semaforo.release()
     def mostrarInventario(self):
-        print("\n=== INVENTARIO ===")
-        for titulo, copias in self.inventario.items():
-            print(f"{titulo}: {copias} copias")
+        print("\nINVENTARIO")
+        for t, c in self.inventario.items():
+            print(f"{t} / {c} copias")
